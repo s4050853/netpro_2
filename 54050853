@@ -1,0 +1,174 @@
+import java.awt.*;
+import java.util.List;
+import javax.swing.*;import java.awt.event.*;
+import java.util.*;
+import java.io.*;
+import java.net.URL;
+import java.net.URLConnection;
+import javax.swing.event.*;
+public class WebMutithread
+{
+public static void main(String [] args)
+{
+JFrame frame = new EditorPaneFrame();
+frame.show();
+}
+}
+class EditorPaneFrame extends JFrame
+{
+private JTextField urlLeft;
+private JTextField urlRight;
+private JButton loadButton;
+private JEditorPane editorPane;
+private JEditorPane editorPane1;
+private JTextArea threadDL;
+private JTextArea threadDR;
+private Thread threadA;
+private Thread threadB;
+private int checkEndThread = 0;
+public EditorPaneFrame()
+{
+setTitle("Chotika Hungsawanus 5405853");
+setSize(1200,700);
+addWindowListener(new WindowAdapter()
+{
+public void windowClosing(WindowEvent e)
+{
+System.exit(0);
+}
+} );
+threadDL = new JTextArea();
+threadDL.setLineWrap(true);
+JScrollPane araTL = new JScrollPane(threadDL);
+araTL.setBounds(120, 380, 450, 200);
+threadDR = new JTextArea();
+threadDR.setLineWrap(true);
+JScrollPane araTR = new JScrollPane(threadDR);
+araTR.setBounds(590, 380, 450, 200);
+urlLeft = new JTextField(40);
+urlRight = new JTextField(40);
+loadButton = new JButton("Load");
+loadButton.addActionListener(new ActionListener()
+{
+public void actionPerformed(ActionEvent event)
+{ checkEndThread++;
+threadA = new Thread(new Runnable() {
+@Override
+public void run() {
+try {
+if(checkEndThread>1)
+{
+threadDL.append("Thread A : Done!!! \n\n");
+}
+
+threadDL.append("Thread A : Start... \n");
+threadDL.append("Thread A : Get page url = "+urlLeft.getText()+"\n");
+editorPane.setPage(urlLeft.getText());
+threadDL.append("Thread A : Printing Response Header...\n");
+URL obj = new URL(urlLeft.getText());
+URLConnection conn = obj.openConnection();
+//get all headers
+Map<String, List<String>> map = conn.getHeaderFields();
+for (Map.Entry<String, List<String>> entry : map.entrySet()) {
+threadDL.append(entry.getKey()+
+" = " + entry.getValue()+"\n");
+}
+editorPane.addHyperlinkListener(new HyperlinkListener()
+{
+public void hyperlinkUpdate(HyperlinkEvent event)
+{
+if(event.getEventType() == HyperlinkEvent.EventType.ACTIVATED)
+{ threadDL.append("Thread A : Get page url = "+urlLeft.getText()+"\n");
+try
+{
+urlLeft.setText(event.getURL().toString());
+editorPane.setPage(event.getURL());
+}
+catch(IOException e)
+{
+editorPane.setText("Error: " + e);
+}
+}
+}
+});
+} catch (IOException e1) {
+// TODO Auto-generated catch block
+e1.printStackTrace();
+}
+}
+},"Thread A");
+
+
+threadA.start();
+threadB = new Thread(new Runnable() {
+@Override
+
+public void run() {
+try { if(checkEndThread>1)
+{
+threadDR.append("Thread B : Done!!! \n\n");
+}
+threadDR.append("Thread B : Start... \n");
+threadDR.append("Thread B : Get page url = "+urlRight.getText()+"\n");
+editorPane1.setPage(urlRight.getText());
+threadDR.append("Thread B : Printing Response Header...\n");
+URL obj = new URL(urlRight.getText());
+URLConnection conn = obj.openConnection();
+//get all headers
+Map<String, List<String>> map = conn.getHeaderFields();
+for (Map.Entry<String, List<String>> entry : map.entrySet()) {
+threadDR.append(entry.getKey()+
+" = " + entry.getValue()+"\n");
+}
+} catch (IOException e1) {
+// TODO Auto-generated catch block
+e1.printStackTrace();
+}
+editorPane1.addHyperlinkListener(new HyperlinkListener()
+{
+public void hyperlinkUpdate(HyperlinkEvent event)
+{
+if(event.getEventType() == HyperlinkEvent.EventType.ACTIVATED)
+{ threadDR.append("Thread B : Get page url = "+urlRight.getText()+"\n");
+try
+{
+urlRight.setText(event.getURL().toString());
+editorPane1.setPage(event.getURL());
+}
+catch(IOException e)
+{
+editorPane1.setText("Error: " + e);
+}
+}
+}
+});
+}
+},"Thread B");
+threadB.start();
+}
+});
+editorPane = new JEditorPane();
+editorPane.setEditable(false);
+editorPane1 = new JEditorPane();
+editorPane1.setEditable(false);
+Container contentPane = getContentPane();
+contentPane.setLayout(null);
+JPanel panelBar = new JPanel();
+panelBar.setBounds(10,20, 1200, 40);
+panelBar.add(new JLabel("URL 1"));
+panelBar.add(urlLeft);
+panelBar.add(new JLabel("URL 2"));
+panelBar.add(urlRight);
+panelBar.add(loadButton);
+
+JScrollPane viewLeft = new JScrollPane(editorPane);
+viewLeft.setBounds(120, 70, 450, 300);
+JScrollPane viewRight = new JScrollPane(editorPane1);
+viewRight.setBounds(590, 70, 450, 300);
+contentPane.add(panelBar);
+contentPane.add(viewLeft);
+contentPane.add(viewRight);
+contentPane.add(araTL);
+contentPane.add(araTR);
+}
+}
